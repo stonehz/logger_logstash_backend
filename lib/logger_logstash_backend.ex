@@ -70,12 +70,12 @@ defmodule LoggerLogstashBackend do
       year, month, day, hour, minute, second, (milliseconds * 1000)
     )
     ts = Timex.to_datetime ts, Timezone.local
-    {:ok, json} = JSX.encode %{
+    {:ok, json} = JSX.encode Map.merge(%{
       type: type,
-      "@timestamp": Timex.format!(ts, "{ISO:Extended}"),
+      "@timestamp": Timex.format!(ts, "%FT%T%z", :strftime),
       message: to_string(msg),
-      fields: fields
-    }
+    }, fields)
+    
     :gen_udp.send socket, host, port, to_charlist(json)
   end
 
